@@ -1,0 +1,629 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package samplevoting;
+
+import java.awt.Image;
+import java.io.File;
+import java.sql.*;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import net.proteanit.sql.DbUtils;
+
+/**
+ *
+ * @author User
+ */
+public class Candidateform extends javax.swing.JFrame {
+
+    String filename = null;
+    byte[] person_image=null;
+    Connection conn = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
+    String gender ="";
+    
+    private static String studentId = "";
+    
+    /**
+     * Creates new form Candidate form
+     */
+    public Candidateform() {
+        initComponents();
+      conn = VotingsystemDB.VotingsystemDB();
+      populatePosition();
+      populatePartylist();
+      
+      selectStudentDialog.setLocationRelativeTo(this);
+    }
+    
+    public void populatePosition(){
+        try{
+            String sql = "SELECT position FROM positions";
+            pst = conn.prepareStatement(sql);
+            rs = pst.executeQuery();
+            while(rs.next()){
+                position.addItem(rs.getString("position"));
+            }
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }
+    }
+    
+    public void populatePartylist(){
+        try{
+            String sql = "SELECT partylist FROM partylist";
+            pst = conn.prepareStatement(sql);
+            rs = pst.executeQuery();
+            while(rs.next()){
+                partylist.addItem(rs.getString("partylist"));
+            }
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }
+    }
+      //fetching student data into table
+    private void populateStudentList() {
+        try {
+            String sql = "SELECT A.id_number 'Student ID', CONCAT(A.firstname, ' ', A.lastname) 'Student Name', A.yearAndSection 'Year and Section', A.Course, A.Gender\n" +
+                            "	FROM students A\n" +
+                            "    LEFT JOIN candidates B\n" +
+                            "    ON A.id_number = B.id_number\n" +
+                            "    WHERE ISNULL(B.id_number)";
+        
+            pst = conn.prepareStatement(sql);
+            rs = pst.executeQuery();
+            
+            studentListTable.setModel(DbUtils.resultSetToTableModel(rs));
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
+    //kapag null yun id
+    private void displayStudentInfo() {
+        if (studentId.isEmpty() || studentId.equals("")) {
+            idNumberTxt.setText("");
+            yearandsectionTxt.setText("");
+            courseTxt.setText("");
+            genderTxt.setText("");
+        } else {
+            //didisplay yun student info.
+            try {
+                
+                String sql = "SELECT A.id_number 'Student ID', CONCAT(A.firstname, ' ', A.lastname) 'Student Name', A.yearAndSection 'Year and Section', A.Course, A.Gender\n" +
+                                "	FROM students A\n" +
+                                "    LEFT JOIN candidates B\n" +
+                                "    ON A.id_number = B.id_number\n" +
+                                "    WHERE ISNULL(B.id_number) AND A.id_number = '"+ studentId +"'";
+                
+                pst = conn.prepareStatement(sql);
+                rs = pst.executeQuery();
+
+                if (rs.next()) {
+                    idNumberTxt.setText(rs.getString(1));
+                    yearandsectionTxt.setText(rs.getString(3));
+                    courseTxt.setText(rs.getString(4));
+                    genderTxt.setText(rs.getString(5));
+                } else {
+                    idNumberTxt.setText("");
+                    yearandsectionTxt.setText("");
+                    courseTxt.setText("");
+                    genderTxt.setText("");
+                }
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
+    }
+    //kunin position id na ang data ay integer then convert sa string "position name".
+    //example ( position_id 1 = president )
+    private Integer getPositionId(String position) {
+        try {
+            int id = 0;
+            String sql = "SELECT position_id FROM positions WHERE position = '"+ position +"'";
+                
+            pst = conn.prepareStatement(sql);
+            rs = pst.executeQuery();
+            
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+            
+            return id;
+        } catch (Exception e) {
+            System.err.println(e);
+            return 0;
+        }
+    }
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        selectStudentDialog = new javax.swing.JDialog();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        studentListTable = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        searchbox = new javax.swing.JTextField();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        submit = new javax.swing.JButton();
+        jLabel21 = new javax.swing.JLabel();
+        position = new javax.swing.JComboBox<String>();
+        jLabel23 = new javax.swing.JLabel();
+        partylist = new javax.swing.JComboBox<String>();
+        jLabel24 = new javax.swing.JLabel();
+        jLabel26 = new javax.swing.JLabel();
+        idNumberTxt = new javax.swing.JTextField();
+        yearandsectionTxt = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        courseTxt = new javax.swing.JTextField();
+        genderTxt = new javax.swing.JTextField();
+
+        selectStudentDialog.setTitle("Select Student");
+        selectStudentDialog.setBackground(java.awt.Color.white);
+        selectStudentDialog.setModal(true);
+        selectStudentDialog.setModalityType(java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
+        selectStudentDialog.setSize(new java.awt.Dimension(930, 671));
+        selectStudentDialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                selectStudentDialogWindowClosing(evt);
+            }
+        });
+        selectStudentDialog.getContentPane().setLayout(new java.awt.CardLayout());
+
+        jPanel1.setBackground(java.awt.Color.white);
+
+        studentListTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "", "", "", ""
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(studentListTable);
+
+        jButton1.setText("SELECT STUDENT");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("SEARCH STUDENT :");
+
+        searchbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchboxActionPerformed(evt);
+            }
+        });
+        searchbox.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchboxKeyReleased(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(searchbox, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 870, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(15, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(36, 36, 36)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(searchbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 501, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+
+        selectStudentDialog.getContentPane().add(jPanel1, "card2");
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+
+        jPanel4.setBackground(new java.awt.Color(0, 153, 255));
+
+        jLabel12.setFont(new java.awt.Font("Trebuchet MS", 1, 24)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setText("Candidate's Registration Form");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel12)
+                .addContainerGap(23, Short.MAX_VALUE))
+        );
+
+        jLabel13.setFont(new java.awt.Font("Trebuchet MS", 0, 14)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel13.setText("Candidate's Personal Information");
+
+        jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel17.setText("Year/Section :");
+
+        jLabel18.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel18.setText("Course :");
+
+        jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel19.setText("Gender :");
+
+        submit.setText("Submit info");
+        submit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                submitActionPerformed(evt);
+            }
+        });
+
+        jLabel21.setText("Position");
+
+        position.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "...." }));
+        position.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                positionActionPerformed(evt);
+            }
+        });
+
+        jLabel23.setText("Partylist");
+
+        partylist.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "...." }));
+        partylist.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                partylistActionPerformed(evt);
+            }
+        });
+
+        jLabel24.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel24.setText("Student :");
+        jLabel24.setToolTipText("");
+
+        jLabel26.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel26.setText("BulSU-SC LSC Voting System 2018");
+
+        idNumberTxt.setEditable(false);
+
+        yearandsectionTxt.setEditable(false);
+        yearandsectionTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                yearandsectionTxtActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Cancel");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("...");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        courseTxt.setEditable(false);
+        courseTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                courseTxtActionPerformed(evt);
+            }
+        });
+
+        genderTxt.setEditable(false);
+        genderTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                genderTxtActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addComponent(submit)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jButton2))
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel24, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(18, 18, 18)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(idNumberTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 175, Short.MAX_VALUE)
+                                .addComponent(yearandsectionTxt)
+                                .addComponent(courseTxt)
+                                .addComponent(genderTxt))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jButton3)
+                            .addGap(18, 18, 18)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabel21, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel23))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(position, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(partylist, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel21, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(position, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel23)
+                            .addComponent(partylist, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel24, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(idNumberTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(yearandsectionTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(courseTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel19)
+                            .addComponent(genderTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(34, 34, 34)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(submit, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(75, 75, 75)
+                .addComponent(jLabel26)
+                .addContainerGap(27, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+
+        pack();
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void partylistActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_partylistActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_partylistActionPerformed
+
+    private void submitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitActionPerformed
+        //VALIDATION PARA SA NULL FIELDS
+        if (studentId.isEmpty() || studentId.equals("")) {
+            JOptionPane.showMessageDialog(this, "Select student first", "Error Message", JOptionPane.ERROR_MESSAGE);
+        } else {
+            //Insert into candidates table.
+            try{
+                String sql = "INSERT INTO candidates (id_number, position_id, partylist) "
+                                + "VALUES ("
+                                            + "'"+ studentId +"', "
+                                            + ""+ getPositionId(position.getSelectedItem().toString()) +", "
+                                            + "'" + partylist.getSelectedItem().toString() + "'"
+                                + ")";
+                
+                pst = conn.prepareStatement(sql);
+                pst.execute();
+                JOptionPane.showMessageDialog(null,"You are now officially a candidate!");
+
+                AdminVoting admin = new AdminVoting();
+                admin.setVisible(true);
+                dispose();
+            } catch(Exception e) {
+                JOptionPane.showMessageDialog(null,"failed to sign-up");
+                System.err.println(e);
+            }  
+        }
+    }//GEN-LAST:event_submitActionPerformed
+
+    private void positionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positionActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_positionActionPerformed
+
+    private void yearandsectionTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yearandsectionTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_yearandsectionTxtActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+       AdminVoting admin = new AdminVoting();
+       admin.setVisible(true);
+        dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        
+        populateStudentList();
+        selectStudentDialog.show();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void courseTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_courseTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_courseTxtActionPerformed
+
+    private void genderTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genderTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_genderTxtActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        int row = studentListTable.getSelectedRow();
+        
+        studentId = studentListTable.getValueAt(row, 0).toString();
+        
+        displayStudentInfo();
+        
+        selectStudentDialog.hide();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void selectStudentDialogWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_selectStudentDialogWindowClosing
+        
+    }//GEN-LAST:event_selectStudentDialogWindowClosing
+    //pang search student.
+    private void searchboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchboxActionPerformed
+     
+    }//GEN-LAST:event_searchboxActionPerformed
+
+    private void searchboxKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchboxKeyReleased
+         try{ 
+          
+          String select =(String)searchbox.getSelectedText();
+          String sql= "SELECT id_number, firstname, lastname,yearAndSection, course,gender FROM students "
+                  + "WHERE CONCAT(id_number,lastname,firstname,yearAndSection,course,gender)"
+                  + "LIKE '%"+searchbox.getText()+"%'";
+                 pst = conn.prepareStatement(sql);
+                 rs = pst.executeQuery();
+                studentListTable.setModel(DbUtils.resultSetToTableModel(rs));
+                pst.close();
+      }catch(Exception e){
+          System.err.println(e);
+      }
+    }//GEN-LAST:event_searchboxKeyReleased
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Candidateform.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(Candidateform.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(Candidateform.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Candidateform.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Candidateform().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField courseTxt;
+    private javax.swing.JTextField genderTxt;
+    private javax.swing.JTextField idNumberTxt;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JComboBox<String> partylist;
+    private javax.swing.JComboBox<String> position;
+    private javax.swing.JTextField searchbox;
+    private javax.swing.JDialog selectStudentDialog;
+    private javax.swing.JTable studentListTable;
+    private javax.swing.JButton submit;
+    private javax.swing.JTextField yearandsectionTxt;
+    // End of variables declaration//GEN-END:variables
+}
